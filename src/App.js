@@ -1,23 +1,44 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
+import {
+  useAllPrismicDocumentsByType,
+  PrismicRichText,
+} from '@prismicio/react';
+
 import './App.css';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [posts] = useAllPrismicDocumentsByType('posts');
+
+  useEffect(() => {
+    if (posts) {
+      setIsLoading(false);
+    }
+  }, [posts]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      <div className='posts'>
+        {isLoading && 'Loading...'}
+        {!isLoading &&
+          posts &&
+          posts.map((p) => (
+            <Post
+              key={p.id}
+              title={p.data.post_title[0].text}
+              body={p.data.post_body}
+            />
+          ))}
+      </div>
+    </div>
+  );
+}
+
+function Post({ title, body }) {
+  return (
+    <div className='blogpost'>
+      <h1>{title}</h1>
+      <PrismicRichText field={body} />
     </div>
   );
 }
